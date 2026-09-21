@@ -87,8 +87,13 @@ Personal context for another repository belongs under that repository's ignored
 - Link non-trivial implementation plans to Jira through the `jira-worklog`
   workflow; all Jira writes require a preview and explicit confirmation.
 - Store the remote-aware local changelog in `.context/CHANGELOG.md`.
-- Create `.context/contexts/`, `.context/docs/`, `.context/plans/`, and
-  `.context/sources/{jira,slack,vimeo,meet,figma}/` as the default scaffold.
+- Create `.context/contexts/`, `.context/docs/`, `.context/plans/`,
+  `.context/scripts/`, and `.context/sources/{jira,slack,vimeo,meet,figma}/` as
+  the default scaffold. Store repository-specific local automation in
+  `.context/scripts/`; it must remain excluded from remote Git history. Store
+  script environment values in adjacent `.env` files under the same directory,
+  restrict secret-bearing files to user-only permissions, and never print or
+  copy their secret values into agent context.
 - When an agent inspects or mutates an external source, persist the useful
   retrieved or resulting information under `.context/sources/<provider>/`
   during the same task. Every successfully created, read, or updated Jira issue

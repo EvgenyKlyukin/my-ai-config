@@ -179,6 +179,7 @@ ignored `.context/` directory:
 ├── INFRASTRUCTURE.md
 ├── contexts/
 ├── docs/
+├── scripts/        # repository-specific local automation, never pushed
 ├── sources/
 │   ├── jira/
 │   ├── slack/        # one document per channel
@@ -195,6 +196,11 @@ priority. The directory is excluded locally through `/.context/` in
 and `plans/` are not modified to store personal context. Context documents are
 written in English regardless of the conversation language; source records may
 instead retain the source's original language.
+Repository-specific personal automation belongs in `.context/scripts/`; it
+remains covered by the local `/.context/` exclusion. Its environment values
+belong in adjacent `.env` files in that directory. Secret-bearing environment
+files use user-only permissions and are never committed, printed, or populated
+through an AI chat; credentials must not be embedded directly in script source.
 When an agent retrieves or changes Jira, Slack, Vimeo, Meet, or Figma
 information, it saves the useful result under `.context/sources/` during the
 same task. Every Jira issue or Epic that is created, read, or updated creates

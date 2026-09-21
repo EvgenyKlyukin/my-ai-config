@@ -55,6 +55,7 @@ structure, language, source records, and tracked-file boundaries.
    | scoped project knowledge | `.context/contexts/<topic>.md` |
    | reusable personal documentation or notes | `.context/docs/<slug>.md` |
    | implementation plan | `.context/plans/YYYY-MM-DD-<slug>.md` |
+   | repository-specific local automation | `.context/scripts/<script-name>` |
    | environment and access procedures without secrets | `.context/INFRASTRUCTURE.md` |
    | Jira material | `.context/sources/jira/<stable-resource-slug>.md` |
    | Slack material | `.context/sources/slack/<channel-slug>.md` |
@@ -62,20 +63,26 @@ structure, language, source records, and tracked-file boundaries.
    | Meet material | `.context/sources/meet/<meeting-id-or-date-slug>.md` |
    | Figma material | `.context/sources/figma/<file-key-or-stable-slug>.md` |
 
-6. Preserve content and useful provenance while normalizing it to the target
+6. Keep scripts under `.context/scripts/` and out of remote Git history. Store
+   their environment values in adjacent `.env` files, using
+   `.env.<script-name>` for separate environments. Never embed credentials,
+   tokens, cookies, or private keys in script source. Keep secret-bearing
+   environment files at mode `600`, populate them through secure secret
+   handoff, and never inspect or display their values while organizing files.
+7. Preserve content and useful provenance while normalizing it to the target
    document convention. Context documents are English. Source records may use
    English or the source's original language.
-7. For Slack, maintain exactly one document per channel. Identify the channel
+8. For Slack, maintain exactly one document per channel. Identify the channel
    by stable channel ID when available and merge new material into the existing
    channel document instead of creating another file. Do not discard existing
    valid content during a merge.
-8. For Figma, maintain exactly one document per file. Identify it by stable file
+9. For Figma, maintain exactly one document per file. Identify it by stable file
    key when available and merge inspected pages, frames, components, variables,
    design decisions, and relevant node links into the existing file document.
-9. Update `.context/AGENTS.md` only when a moved document is broadly useful and
+10. Update `.context/AGENTS.md` only when a moved document or script is broadly useful and
    should be discoverable from the canonical map. Do not list every source
    record individually.
-10. Verify the result:
+11. Verify the result:
 
    ```bash
    git check-ignore -q .context/

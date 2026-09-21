@@ -34,6 +34,7 @@ Keep personal agent context under `.context/` so it cannot conflict with files f
     │   ├── backend.md
     │   └── deployment.md
     ├── docs/                     # reusable local documentation and notes
+    ├── scripts/                  # repository-specific local automation, never remote
     ├── sources/                  # persistent records retrieved from external sources
     │   ├── jira/
     │   ├── slack/                # exactly one document per Slack channel
@@ -44,8 +45,9 @@ Keep personal agent context under `.context/` so it cannot conflict with files f
         └── YYYY-MM-DD-<slug>.md
 ```
 
-Create `.context/contexts/`, `.context/docs/`, `.context/plans/`, and every
-`.context/sources/<provider>/` directory with the scaffold, even when empty.
+Create `.context/contexts/`, `.context/docs/`, `.context/plans/`,
+`.context/scripts/`, and every `.context/sources/<provider>/` directory with
+the scaffold, even when empty.
 Create files inside them only when they carry useful information. Create
 `.context/CHANGELOG.md` with the scaffold. Ask before creating
 `INFRASTRUCTURE.md` when its content would require guessing.
@@ -63,8 +65,8 @@ Create files inside them only when they carry useful information. Create
    ```
 
 6. Create `.context/CHANGELOG.md`, `.context/contexts/`, `.context/docs/`,
-   `.context/plans/`, and `.context/sources/{jira,slack,vimeo,meet,figma}/`
-   immediately when missing.
+   `.context/plans/`, `.context/scripts/`, and
+   `.context/sources/{jira,slack,vimeo,meet,figma}/` immediately when missing.
 7. Create `.context/INFRASTRUCTURE.md` only from known or discoverable facts; ask the user about material unknowns instead of adding placeholders or guesses.
 8. Verify that `.context/` is ignored, the symlink resolves, and no tracked file changed.
 
@@ -77,12 +79,27 @@ Keep this canonical map short, normally under 100-150 lines. Include:
 - one or two paragraphs describing the repository;
 - a statement that remote/tracked instructions have priority;
 - links to `.context/CHANGELOG.md`, `.context/INFRASTRUCTURE.md`,
-  `.context/docs/`, `.context/sources/`, and `.context/plans/` when they exist;
+  `.context/docs/`, `.context/scripts/`, `.context/sources/`, and
+  `.context/plans/` when they exist;
 - a list of available `.context/contexts/*.md` files with one-line descriptions;
 - the session-start remote synchronization instruction below;
 - genuinely universal local rules such as language or commit policy.
 
 Do not copy remote documentation into the map. Link to remote documents when relevant and keep personal interpretation in `.context/contexts/`.
+
+## Local Scripts
+
+Store repository-specific local automation in `.context/scripts/`. These
+scripts are personal working tools and must remain under the ignored
+`.context/` boundary instead of being committed or pushed to the remote
+repository. Do not store credentials, tokens, cookies, private keys, or other
+secret values in script source. Store environment values in an adjacent
+`.context/scripts/.env` file, or `.env.<script-name>` when separate environments
+are required. Set secret-bearing environment files to user-only permissions
+(`chmod 600`), populate them through secure secret handoff rather than chat,
+and never read, print, summarize, or copy secret values into agent context.
+Load or run only task-relevant scripts, and document broadly reusable ones in
+`.context/AGENTS.md` with a short purpose statement.
 
 ## Selective Context
 

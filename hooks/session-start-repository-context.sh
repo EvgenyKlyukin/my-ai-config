@@ -20,6 +20,7 @@ missing=()
 [ -d "${local_root}/contexts" ] || missing+=(".context/contexts/")
 [ -d "${local_root}/docs" ] || missing+=(".context/docs/")
 [ -d "${local_root}/plans" ] || missing+=(".context/plans/")
+[ -d "${local_root}/scripts" ] || missing+=(".context/scripts/")
 for provider in jira slack vimeo meet figma; do
   [ -d "${local_root}/sources/${provider}" ] || missing+=(".context/sources/${provider}/")
 done

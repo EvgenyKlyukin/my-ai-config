@@ -42,10 +42,10 @@ preserve configuration outside the repository's explicit ownership boundary.
 7. Keep global MCP defaults repository-managed and available from every project.
    The expected browser set is `playwright` and `chrome-devtools` for both
    clients; both clients also receive read-only GitLab, authenticated Datadog,
-   plus the hosted Atlassian Rovo and Vimeo MCP endpoints. Codex additionally
-   receives `computer-use` when available. Both clients load Slack, GitLab, and
-   Datadog credentials from macOS Keychain without embedding them in client
-   configuration.
+   plus the hosted Atlassian Rovo, Vimeo, and Wiz MCP endpoints. Codex
+   additionally receives `computer-use` when available. Both clients load
+   Slack, GitLab, and Datadog credentials from macOS Keychain without embedding
+   them in client configuration.
 
 ## Ownership boundary
 
@@ -55,11 +55,11 @@ This repository may create, replace, or remove only:
   into this repository;
 - Claude hook command registrations explicitly listed in `HOOK_EVENTS`;
 - user-scoped Claude MCP entries named `playwright`, `chrome-devtools`, `slack`,
-  `gitlab`, `datadog`, `atlassian`, and `vimeo`;
-- the marked `my-ai-config-local-context`, `my-ai-config-browser`, and
-  `my-ai-config-jira-workflow` blocks in `~/AGENTS.md`;
+  `gitlab`, `datadog`, `atlassian`, `vimeo`, and `wiz`;
+- the marked `my-ai-config-local-context`, `my-ai-config-browser`,
+  `my-ai-config-jira-workflow`, and `my-ai-config-wiz` blocks in `~/AGENTS.md`;
 - the Codex MCP entries named `computer-use`, `slack`, `gitlab`, `datadog`,
-  `atlassian`, and `vimeo` installed by `install-codex.sh`;
+  `atlassian`, `vimeo`, and `wiz` installed by `install-codex.sh`;
 - a converted Codex skill at `~/.agents/skills/<name>` only when the matching
   `~/.claude/skills/<name>` symlink is recorded in
   `~/.claude/.my-ai-config-manifest` and resolves inside this repository.

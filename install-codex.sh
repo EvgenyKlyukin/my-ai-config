@@ -25,12 +25,14 @@ CONFIG_TOML="${CODEX_HOME}/config.toml"
 LOCAL_CONTEXT_RULE="${CLAUDE_HOME}/rules/local-context.md"
 BROWSER_RULE="${CLAUDE_HOME}/rules/existing-browser.md"
 JIRA_WORKFLOW_RULE="${CLAUDE_HOME}/rules/jira-workflow.md"
+WIZ_RULE="${CLAUDE_HOME}/rules/wiz.md"
 COMPUTER_USE_CLIENT="${CODEX_HOME}/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
 SLACK_KEYCHAIN_SERVICE="my-ai-config.slack"
 SLACK_KEYCHAIN_ACCOUNT="SLACK_MCP_XOXP_TOKEN"
 SLACK_MCP_LAUNCHER='token="$(security find-generic-password -s "my-ai-config.slack" -a "SLACK_MCP_XOXP_TOKEN" -w 2>/dev/null)" || { echo "Slack token is missing from macOS Keychain" >&2; exit 1; }; exec env SLACK_MCP_XOXP_TOKEN="$token" SLACK_MCP_ENABLED_TOOLS="channels_list,channels_me,conversations_history,conversations_replies,conversations_search_messages,conversations_unreads,usergroups_list,usergroups_me,users_search" npx -y slack-mcp-server@latest'
 VIMEO_MCP_URL="https://mcp.vimeo.com/mcp"
 ATLASSIAN_MCP_URL="https://mcp.atlassian.com/v2/mcp"
+WIZ_MCP_URL="https://mcp.app.wiz.io"
 GITLAB_KEYCHAIN_SERVICE="my-ai-config.gitlab"
 GITLAB_KEYCHAIN_ACCOUNT="GITLAB_PERSONAL_ACCESS_TOKEN"
 GITLAB_MCP_LAUNCHER='token="$(security find-generic-password -s "my-ai-config.gitlab" -a "GITLAB_PERSONAL_ACCESS_TOKEN" -w 2>/dev/null)" || { echo "GitLab token is missing from macOS Keychain" >&2; exit 1; }; exec env GITLAB_PERSONAL_ACCESS_TOKEN="$token" GITLAB_API_URL="https://gitlab.loc/api/v4" GITLAB_PERMISSION_MODE="readonly" npx -y @zereight/mcp-gitlab@latest'
@@ -274,6 +276,34 @@ PYEOF
   echo "repaired: ${AGENTS_MD} (installed Jira visibility rule)"
 fi
 
+# --- install the shared Wiz access and VS Code fallback rule for Codex ---
+if [ -f "${WIZ_RULE}" ] && [ -f "${AGENTS_MD}" ]; then
+  python3 - "${AGENTS_MD}" "${WIZ_RULE}" <<'PYEOF'
+import re
+import sys
+
+agents_path, rule_path = sys.argv[1], sys.argv[2]
+agents = open(agents_path).read().rstrip("\n")
+rule = open(rule_path).read().strip()
+block = (
+    "<!-- my-ai-config-wiz:start -->\n"
+    + rule
+    + "\n<!-- my-ai-config-wiz:end -->"
+)
+pattern = re.compile(
+    r"\n?<!-- my-ai-config-wiz:start -->.*?"
+    r"<!-- my-ai-config-wiz:end -->",
+    re.DOTALL,
+)
+if pattern.search(agents):
+    agents = pattern.sub("\n\n" + block, agents, count=1)
+else:
+    agents += "\n\n" + block
+open(agents_path, "w").write(agents.strip() + "\n")
+PYEOF
+  echo "repaired: ${AGENTS_MD} (installed Wiz access rule)"
+fi
+
 # --- repair config.toml: re-add project trust levels, drop invalid model id ---
 if [ -f "${CONFIG_TOML}" ]; then
   python3 - "${CONFIG_TOML}" "${projects_snapshot}" <<'PYEOF'
@@ -408,6 +438,16 @@ if codex mcp get vimeo 2>/dev/null | grep -qF "url: ${VIMEO_MCP_URL}"; then
 else
   codex mcp remove vimeo >/dev/null 2>&1 || true
   codex mcp add vimeo --url "${VIMEO_MCP_URL}"
+fi
+
+# Wiz uses browser-based OAuth for individual users. Keep the default Gateway
+# mode endpoint so the client sees two routing tools instead of 150+ tools.
+if codex mcp get wiz 2>/dev/null | grep -qF "url: ${WIZ_MCP_URL}"; then
+  echo "unchanged: Wiz MCP (${WIZ_MCP_URL})"
+else
+  codex mcp remove wiz >/dev/null 2>&1 || true
+  codex mcp add wiz --url "${WIZ_MCP_URL}"
+  echo "NOTICE: Wiz MCP endpoint changed; run 'codex mcp login wiz' to authorize it" >&2
 fi
 
 # Install the optional internal Service Desk plugin after migration and repair.

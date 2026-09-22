@@ -20,6 +20,7 @@ MANAGED_DIRS=(rules skills agents commands hooks)
 # install-codex.sh migrates them into Codex and adds Codex-native hosted MCPs.
 VIMEO_MCP_URL="https://mcp.vimeo.com/mcp"
 ATLASSIAN_MCP_URL="https://mcp.atlassian.com/v2/mcp"
+WIZ_MCP_URL="https://mcp.app.wiz.io"
 SLACK_KEYCHAIN_SERVICE="my-ai-config.slack"
 SLACK_KEYCHAIN_ACCOUNT="SLACK_MCP_XOXP_TOKEN"
 SLACK_MCP_LAUNCHER='token="$(security find-generic-password -s "my-ai-config.slack" -a "SLACK_MCP_XOXP_TOKEN" -w 2>/dev/null)" || { echo "Slack token is missing from macOS Keychain" >&2; exit 1; }; exec env SLACK_MCP_XOXP_TOKEN="$token" SLACK_MCP_ENABLED_TOOLS="channels_list,channels_me,conversations_history,conversations_replies,conversations_search_messages,conversations_unreads,usergroups_list,usergroups_me,users_search" npx -y slack-mcp-server@latest'
@@ -151,6 +152,13 @@ if command -v claude >/dev/null 2>&1; then
   else
     claude mcp remove --scope user vimeo >/dev/null 2>&1 || true
     claude mcp add --scope user --transport http vimeo "${VIMEO_MCP_URL}"
+  fi
+  if claude mcp get wiz 2>/dev/null | grep -qF "URL: ${WIZ_MCP_URL}"; then
+    echo "unchanged: Wiz MCP (${WIZ_MCP_URL})"
+  else
+    claude mcp remove --scope user wiz >/dev/null 2>&1 || true
+    claude mcp add --scope user --transport http wiz "${WIZ_MCP_URL}"
+    echo "NOTICE: Wiz MCP endpoint changed; run 'claude mcp login wiz' to authorize it" >&2
   fi
 else
   echo "WARN: claude CLI not found — skipping global Claude MCP installation" >&2

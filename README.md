@@ -33,6 +33,8 @@ user or corporate configuration.
     credentials loaded from macOS Keychain;
   - `atlassian` for Jira and Confluence through Atlassian Rovo MCP after OAuth;
   - `vimeo` for transcripts, video metadata, and analytics after OAuth login;
+  - `wiz` for security findings, affected resources, evidence, attack paths,
+    and remediation guidance after OAuth login;
 - the `.context/` convention for conflict-free, repository-local personal
   context and implementation plans.
 
@@ -83,8 +85,8 @@ The installer also:
 
 - registers this repository's Claude hooks in `~/.claude/settings.json` while
   preserving unrelated settings;
-- installs `playwright`, `chrome-devtools`, `gitlab`, `atlassian`, and `vimeo` as
-  user-scoped Claude MCP servers;
+- installs `playwright`, `chrome-devtools`, `gitlab`, `atlassian`, `vimeo`, and
+  `wiz` as user-scoped Claude MCP servers;
 - installs `xsolla-service-desk@xsolla-ai-infra` when its internal GitLab
   marketplace is reachable.
 
@@ -100,8 +102,8 @@ preserves project trust levels, Codex MCP servers, marketplaces, plugins,
 feature flags, shell policy, and the corporate Neuronet instruction block. It
 also copies supporting files referenced by shared skills, installs the shared
 `.context/`, existing-browser, and Jira visibility rules, and registers Codex
-Desktop's `computer-use` MCP when available, plus Slack and Vimeo MCP access
-without storing credentials in `~/.codex/config.toml`.
+Desktop's `computer-use` MCP when available, plus Slack, Vimeo, and Wiz MCP
+access without storing credentials in `~/.codex/config.toml`.
 
 Both installers add the internal `xsolla-ai-infra` marketplace and install
 `xsolla-service-desk@xsolla-ai-infra` when `gitlab.loc` is reachable. Failure to
@@ -138,9 +140,9 @@ codex plugin list
 ```
 
 The defaults should include `playwright`, `chrome-devtools`, `gitlab`,
-`datadog`, `atlassian`, and `vimeo` in both clients, plus `computer-use` in Codex when
-Codex Desktop provides the local client. Atlassian and
-Vimeo require a one-time OAuth login in each client. Slack becomes operational after
+`datadog`, `atlassian`, `vimeo`, and `wiz` in both clients, plus `computer-use`
+in Codex when Codex Desktop provides the local client. Atlassian, Vimeo, and
+Wiz require a one-time OAuth login in each client. Slack becomes operational after
 its Keychain token is configured as described in the
 [Slack MCP setup guide](docs/slack-mcp.md).
 Datadog becomes operational after its two service-account keys are stored as
@@ -259,10 +261,11 @@ require manual compatibility review.
 The repository owns only the Claude symlinks recorded in
 `~/.claude/.my-ai-config-manifest`, its hook command registrations listed in
 `HOOK_EVENTS`, the user-scoped Claude MCP entries named `playwright`,
-`chrome-devtools`, `atlassian`, and `vimeo`, the marked `my-ai-config-local-context`,
-`my-ai-config-browser`, and `my-ai-config-jira-workflow` blocks in
-`~/AGENTS.md`, the Codex MCP entries named `computer-use`, `slack`, `atlassian`,
-and `vimeo`, and a converted
+`chrome-devtools`, `atlassian`, `vimeo`, and `wiz`, the marked
+`my-ai-config-local-context`, `my-ai-config-browser`,
+`my-ai-config-jira-workflow`, and `my-ai-config-wiz` blocks in `~/AGENTS.md`,
+the Codex MCP entries named `computer-use`, `slack`, `atlassian`, `vimeo`, and
+`wiz`, and a converted
 Codex skill at `~/.agents/skills/<name>` only when the corresponding
 `~/.claude/skills/<name>` symlink is recorded in the manifest and resolves
 inside this repository. All other configuration must be preserved or restored

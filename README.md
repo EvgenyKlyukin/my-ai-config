@@ -261,6 +261,14 @@ examples include:
 Review `~/.codex/migrate-to-codex-report.txt` after migration for fields that
 require manual compatibility review.
 
+The first interactive installation asks for the Jira display name returned by
+Jira's `/myself` endpoint. It stores that machine-local value in
+`~/.config/my-ai-config/jira-display-name`; the value is never committed to
+this repository. Re-running the installer keeps the configured value. For a
+non-interactive installation, set `MY_AI_CONFIG_JIRA_DISPLAY_NAME` explicitly.
+If no identity is configured, agents must refuse every Jira write until the
+installer is rerun with a value.
+
 The repository owns only the Claude symlinks recorded in
 `~/.claude/.my-ai-config-manifest`, its hook command registrations listed in
 `HOOK_EVENTS`, the user-scoped Claude MCP entries named `playwright`,

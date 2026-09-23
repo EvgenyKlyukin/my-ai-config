@@ -14,6 +14,8 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${HOME}/.claude"
 MANIFEST="${CLAUDE_DIR}/.my-ai-config-manifest"
 SETTINGS_JSON="${CLAUDE_DIR}/settings.json"
+USER_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/my-ai-config"
+JIRA_IDENTITY_FILE="${USER_CONFIG_DIR}/jira-display-name"
 MANAGED_DIRS=(rules skills agents commands hooks)
 
 # MCP servers owned by this repo and installed globally for Claude Code.
@@ -46,6 +48,26 @@ LEGACY_HOOK_COMMANDS=(
 )
 
 mkdir -p "${CLAUDE_DIR}"
+
+# Jira writes are allowed only after /myself matches this machine's configured
+# user. Keep the personal identity outside the shared repository. Interactive
+# first-time installs ask for it; automation may pass MY_AI_CONFIG_JIRA_DISPLAY_NAME.
+jira_display_name="${MY_AI_CONFIG_JIRA_DISPLAY_NAME:-}"
+if [ -z "${jira_display_name}" ] && [ -s "${JIRA_IDENTITY_FILE}" ]; then
+  IFS= read -r jira_display_name < "${JIRA_IDENTITY_FILE}"
+fi
+if [ -z "${jira_display_name}" ] && [ -t 0 ]; then
+  printf 'Jira display name returned by /myself (required for Jira writes): '
+  IFS= read -r jira_display_name
+fi
+if [ -n "${jira_display_name}" ]; then
+  mkdir -p "${USER_CONFIG_DIR}"
+  printf '%s\n' "${jira_display_name}" > "${JIRA_IDENTITY_FILE}"
+  chmod 600 "${JIRA_IDENTITY_FILE}"
+  echo "configured: Jira write identity (${JIRA_IDENTITY_FILE})"
+else
+  echo "NOTICE: Jira write identity is not configured; agents must not write to Jira" >&2
+fi
 
 # Build the set of symlink targets this run of the repo should produce.
 current_targets=()

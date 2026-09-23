@@ -13,6 +13,12 @@ Preserve readable Jira formatting in every description and comment. Keep paragra
 
 The home Jira space/project is `IEO`. Search `IEO` first and create new Jira work there by default. Use another project only when the user explicitly selects it or the work is already linked to an existing issue elsewhere; never infer a different project from repository names alone.
 
+## Mandatory Write Identity Check
+
+Immediately before every Jira write, read the expected Jira display name from `~/.config/my-ai-config/jira-display-name`, call the authenticated Jira `/myself` endpoint, and require the returned display name to match the configured value exactly. If the identity file is missing or blank, ask the user to configure it by rerunning the installer or setting `MY_AI_CONFIG_JIRA_DISPLAY_NAME`, then stop without writing. If `/myself` returns another identity, no identity, or cannot be checked, stop and do not perform the write. Do not reuse an identity result from an earlier write or session.
+
+This preflight applies to every mutation, including issue creation or edits, comments, transitions, assignments, relationships, and native remote links, whether Jira is accessed through Atlassian MCP, a direct API, or the browser. Use only the configured user's API token or an existing Jira browser session authenticated as that user. Never fall back to another user's credentials, a shared identity, or an application/service identity. The identity check is additional to the preview and explicit-approval requirement; it does not replace approval. Never commit a personal Jira identity to this repository.
+
 ## Load Context
 
 1. Read repository-tracked instructions first.

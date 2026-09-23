@@ -57,7 +57,8 @@ This repository may create, replace, or remove only:
 - user-scoped Claude MCP entries named `playwright`, `chrome-devtools`, `slack`,
   `gitlab`, `datadog`, `atlassian`, `vimeo`, and `wiz`;
 - the marked `my-ai-config-local-context`, `my-ai-config-browser`,
-  `my-ai-config-jira-workflow`, and `my-ai-config-wiz` blocks in `~/AGENTS.md`;
+  `my-ai-config-jira-workflow`, `my-ai-config-gitlab-workflow`, and
+  `my-ai-config-wiz` blocks in `~/AGENTS.md`;
 - the Codex MCP entries named `computer-use`, `slack`, `gitlab`, `datadog`,
   `atlassian`, `vimeo`, and `wiz` installed by `install-codex.sh`;
 - a converted Codex skill at `~/.agents/skills/<name>` only when the matching

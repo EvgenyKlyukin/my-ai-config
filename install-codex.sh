@@ -26,6 +26,7 @@ LOCAL_CONTEXT_RULE="${CLAUDE_HOME}/rules/local-context.md"
 BROWSER_RULE="${CLAUDE_HOME}/rules/existing-browser.md"
 JIRA_WORKFLOW_RULE="${CLAUDE_HOME}/rules/jira-workflow.md"
 WIZ_RULE="${CLAUDE_HOME}/rules/wiz.md"
+GITLAB_WORKFLOW_RULE="${CLAUDE_HOME}/rules/gitlab-workflow.md"
 COMPUTER_USE_CLIENT="${CODEX_HOME}/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
 SLACK_KEYCHAIN_SERVICE="my-ai-config.slack"
 SLACK_KEYCHAIN_ACCOUNT="SLACK_MCP_XOXP_TOKEN"
@@ -302,6 +303,34 @@ else:
 open(agents_path, "w").write(agents.strip() + "\n")
 PYEOF
   echo "repaired: ${AGENTS_MD} (installed Wiz access rule)"
+fi
+
+# --- install the shared GitLab merge-request rule for Codex ---
+if [ -f "${GITLAB_WORKFLOW_RULE}" ] && [ -f "${AGENTS_MD}" ]; then
+  python3 - "${AGENTS_MD}" "${GITLAB_WORKFLOW_RULE}" <<'PYEOF'
+import re
+import sys
+
+agents_path, rule_path = sys.argv[1], sys.argv[2]
+agents = open(agents_path).read().rstrip("\n")
+rule = open(rule_path).read().strip()
+block = (
+    "<!-- my-ai-config-gitlab-workflow:start -->\n"
+    + rule
+    + "\n<!-- my-ai-config-gitlab-workflow:end -->"
+)
+pattern = re.compile(
+    r"\n?<!-- my-ai-config-gitlab-workflow:start -->.*?"
+    r"<!-- my-ai-config-gitlab-workflow:end -->",
+    re.DOTALL,
+)
+if pattern.search(agents):
+    agents = pattern.sub("\n\n" + block, agents, count=1)
+else:
+    agents += "\n\n" + block
+open(agents_path, "w").write(agents.strip() + "\n")
+PYEOF
+  echo "repaired: ${AGENTS_MD} (installed GitLab merge-request rule)"
 fi
 
 # --- repair config.toml: re-add project trust levels, drop invalid model id ---

@@ -177,32 +177,41 @@ The `repository-context` skill stores personal repository context under an
 ignored `.context/` directory:
 
 ```text
-.context/
-├── AGENTS.md
-├── CLAUDE.md -> AGENTS.md
-├── CHANGELOG.md
-├── INFRASTRUCTURE.md
-├── contexts/
-├── docs/
-├── scripts/        # repository-specific local automation, never pushed
-├── sources/
-│   ├── jira/
-│   ├── slack/        # one document per channel
-│   ├── vimeo/
-│   ├── meet/
-│   └── figma/        # one document per Figma file
-└── plans/
+<repo>/
+├── .worktrees/       # ignored project-local Codex worktrees
+│   └── <branch>/
+│       └── .context -> <repo>/.context
+└── .context/
+    ├── AGENTS.md
+    ├── CLAUDE.md -> AGENTS.md
+    ├── CHANGELOG.md
+    ├── INFRASTRUCTURE.md
+    ├── contexts/
+    ├── docs/
+    ├── scripts/      # repository-specific local automation, never pushed
+    ├── sources/
+    │   ├── jira/
+    │   ├── slack/    # one document per channel
+    │   ├── vimeo/
+    │   ├── meet/
+    │   └── figma/    # one document per Figma file
+    └── plans/
 ```
 
 `.context/AGENTS.md` is the canonical map. Agents read only the linked files
 needed for the current task, while tracked repository instructions always have
-priority. The directory is excluded locally through `/.context/` in
-`.git/info/exclude`; tracked `.gitignore`, `AGENTS.md`, `CLAUDE.md`, `docs/`,
-and `plans/` are not modified to store personal context. Context documents are
+priority. The local entries are excluded through `/.context` and
+`/.worktrees/` in `.git/info/exclude`; tracked `.gitignore`, `AGENTS.md`,
+`CLAUDE.md`, `docs/`, and `plans/` are not modified to store personal context.
+`.worktrees/` is created by default for isolated Codex Git worktrees. Context documents are
 written in English regardless of the conversation language; source records may
 instead retain the source's original language.
+The primary worktree owns the repository's only real `.context/` directory.
+Each linked worktree uses a `.context` symlink to that shared directory, so
+plans, source records, scripts, and the changelog remain consistent across
+branches.
 Repository-specific personal automation belongs in `.context/scripts/`; it
-remains covered by the local `/.context/` exclusion. Its environment values
+remains covered by the local `/.context` exclusion. Its environment values
 belong in adjacent `.env` files in that directory. Secret-bearing environment
 files use user-only permissions and are never committed, printed, or populated
 through an AI chat; credentials must not be embedded directly in script source.

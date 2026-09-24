@@ -9,13 +9,14 @@ Keep personal agent context under `.context/` so it cannot conflict with files f
 
 ## Core Rules
 
-1. Put every personal context artifact under `<repo>/.context/`.
-2. Add `/.context/` to `<repo>/.git/info/exclude` before creating the scaffold. Do not modify the tracked `.gitignore` for this purpose.
-3. Never modify, replace, rename, ignore, or symlink remote/tracked `CLAUDE.md`, `AGENTS.md`, `docs/`, `plans/`, or similar repository files.
-4. Treat remote/tracked instructions as authoritative when they conflict with `.context/`.
-5. Read `.context/AGENTS.md` as a map first. Load only the linked files needed for the current task; never load all of `.context/` by default.
-6. Report a conflict between remote and local instructions, then follow the remote instruction.
-7. Write repository context documents in English even when the user or task
+1. Keep exactly one personal context store at `<primary-worktree>/.context/` for the whole repository. Never create branch-specific context copies.
+2. In every linked worktree, make `.context` a symlink to the primary worktree's shared `.context/` directory.
+3. Add `/.context` and `/.worktrees/` to the repository's shared `.git/info/exclude` before creating the scaffold. The no-trailing-slash `.context` pattern covers both the primary directory and linked-worktree symlinks. Do not modify the tracked `.gitignore` for this purpose.
+4. Never modify, replace, rename, ignore, or symlink remote/tracked `CLAUDE.md`, `AGENTS.md`, `docs/`, `plans/`, or similar repository files.
+5. Treat remote/tracked instructions as authoritative when they conflict with `.context/`.
+6. Read `.context/AGENTS.md` as a map first. Load only the linked files needed for the current task; never load all of `.context/` by default.
+7. Report a conflict between remote and local instructions, then follow the remote instruction.
+8. Write repository context documents in English even when the user or task
    uses another language. Source records under `.context/sources/` may instead
    use the source's original language. Preserve exact identifiers and required
    quotations.
@@ -24,6 +25,9 @@ Keep personal agent context under `.context/` so it cannot conflict with files f
 
 ```text
 <repo>/
+├── .worktrees/                 # ignored project-local Codex worktrees
+│   └── <branch>/
+│       └── .context -> <repo>/.context
 └── .context/
     ├── AGENTS.md                 # canonical local context map
     ├── CLAUDE.md -> AGENTS.md    # compatibility symlink for Claude
@@ -47,28 +51,30 @@ Keep personal agent context under `.context/` so it cannot conflict with files f
 
 Create `.context/contexts/`, `.context/docs/`, `.context/plans/`,
 `.context/scripts/`, and every `.context/sources/<provider>/` directory with
-the scaffold, even when empty.
+the scaffold, even when empty. Also create the sibling `<repo>/.worktrees/`
+directory for Codex project-local Git worktrees and keep it locally ignored.
 Create files inside them only when they carry useful information. Create
 `.context/CHANGELOG.md` with the scaffold. Ask before creating
 `INFRASTRUCTURE.md` when its content would require guessing.
 
 ## Bootstrap Workflow
 
-1. Resolve the repository root with `git rev-parse --show-toplevel`.
-2. Inspect remote/tracked instruction and documentation files, but do not edit them.
-3. Ensure the exact line `/.context/` exists in `.git/info/exclude`; create `.git/info/` or `exclude` if necessary.
-4. Create `.context/AGENTS.md` as the canonical short English map.
-5. Create `.context/CLAUDE.md` as a symlink to `AGENTS.md`:
+1. Resolve the current worktree root with `git rev-parse --show-toplevel` and the primary worktree root from the first `worktree` entry returned by `git worktree list --porcelain`.
+2. Treat `<primary-worktree>/.context/` as the only canonical context store. If the current root is a linked worktree, create or verify its `.context` symlink to that shared directory. Never create an independent `.context/` directory in a linked worktree. If a real `.context/` directory already exists there, do not overwrite it; report the conflict and ask how to merge or preserve its content.
+3. Inspect remote/tracked instruction and documentation files, but do not edit them.
+4. Ensure the exact lines `/.context` and `/.worktrees/` exist in the shared Git `info/exclude`; create `info/` or `exclude` if necessary.
+5. Create `<primary-worktree>/.context/AGENTS.md` as the canonical short English map.
+6. Create `<primary-worktree>/.context/CLAUDE.md` as a symlink to `AGENTS.md`:
 
    ```bash
    ln -sfn AGENTS.md .context/CLAUDE.md
    ```
 
-6. Create `.context/CHANGELOG.md`, `.context/contexts/`, `.context/docs/`,
+7. Create `.worktrees/`, `.context/CHANGELOG.md`, `.context/contexts/`, `.context/docs/`,
    `.context/plans/`, `.context/scripts/`, and
    `.context/sources/{jira,slack,vimeo,meet,figma}/` immediately when missing.
-7. Create `.context/INFRASTRUCTURE.md` only from known or discoverable facts; ask the user about material unknowns instead of adding placeholders or guesses.
-8. Verify that `.context/` is ignored, the symlink resolves, and no tracked file changed.
+8. Create `.context/INFRASTRUCTURE.md` only from known or discoverable facts; ask the user about material unknowns instead of adding placeholders or guesses.
+9. Verify that `.context/` and `.worktrees/` are ignored, every linked-worktree `.context` resolves to the primary shared directory, and no tracked file changed.
 
 If `.context/AGENTS.md` and `.context/CLAUDE.md` already exist but the latter is not a symlink to `AGENTS.md`, do not overwrite either file. Show the discrepancy and ask which content to preserve.
 
@@ -236,6 +242,8 @@ Never write secret values. Record the secret manager or vault and exact credenti
 ## Completion Checks
 
 - `git check-ignore -q .context/` succeeds.
+- `git check-ignore -q .worktrees/` succeeds and `.worktrees/` exists for Codex.
+- In a linked worktree, `.context` is a symlink to the primary worktree's shared `.context/`; it is never a branch-specific directory.
 - `.context/CLAUDE.md` resolves to `AGENTS.md`.
 - `.context/AGENTS.md` links only to existing local files.
 - Every context document is written in English; source records use English or

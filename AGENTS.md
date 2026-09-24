@@ -90,7 +90,12 @@ Personal context for another repository belongs under that repository's ignored
 - Store the remote-aware local changelog in `.context/CHANGELOG.md`.
 - Create `.context/contexts/`, `.context/docs/`, `.context/plans/`,
   `.context/scripts/`, and `.context/sources/{jira,slack,vimeo,meet,figma}/` as
-  the default scaffold. Store repository-specific local automation in
+  the default scaffold. Also create the sibling `.worktrees/` directory for
+  Codex project-local Git worktrees under the primary worktree. Keep one shared
+  `<primary-worktree>/.context/` for the entire repository and make `.context`
+  in every linked worktree a symlink to it; never create context per branch.
+  Add both `/.context` and `/.worktrees/` to the shared `.git/info/exclude`
+  without changing tracked `.gitignore`. Store repository-specific local automation in
   `.context/scripts/`; it must remain excluded from remote Git history. Store
   script environment values in adjacent `.env` files under the same directory,
   restrict secret-bearing files to user-only permissions, and never print or
@@ -105,7 +110,7 @@ Personal context for another repository belongs under that repository's ignored
   uses another language, except source records under `.context/sources/`, which
   may use English or the source's original language. Preserve exact identifiers
   and required quotations.
-- Add `/.context/` to `.git/info/exclude`; do not modify tracked `.gitignore`
+- Add `/.context` to `.git/info/exclude`; do not modify tracked `.gitignore`
   for personal context.
 - Never modify tracked `AGENTS.md`, `CLAUDE.md`, `docs/`, or `plans/` merely to
   store personal notes.

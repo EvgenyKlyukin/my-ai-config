@@ -9,6 +9,11 @@ description: Use when starting feature work that needs isolation from current wo
 
 Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching.
 
+All worktrees of one repository must also share one local context store. The
+canonical store is `<primary-worktree>/.context/`; a linked worktree must expose
+it through a `.context` symlink and must never create or copy branch-specific
+context.
+
 **Core principle:** Systematic directory selection + safety verification = reliable isolation.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
@@ -20,9 +25,12 @@ Follow this priority order:
 ### 1. Check Existing Directories
 
 ```bash
-# Check in priority order
-ls -d .worktrees 2>/dev/null     # Preferred (hidden)
-ls -d worktrees 2>/dev/null      # Alternative
+# Resolve the primary worktree before choosing a project-local directory.
+primary_root="$(git worktree list --porcelain | sed -n 's/^worktree //p' | head -1)"
+
+# Check in priority order under the primary worktree.
+ls -d "$primary_root/.worktrees" 2>/dev/null     # Preferred (hidden)
+ls -d "$primary_root/worktrees" 2>/dev/null      # Alternative
 ```
 
 **If found:** Use that directory. If both exist, `.worktrees` wins.
@@ -56,15 +64,15 @@ Which would you prefer?
 
 ```bash
 # Check output (not just exit code) — -q can be unreliable in some environments
-git check-ignore .worktrees 2>/dev/null  # prints path if ignored, empty if not
+git -C "$primary_root" check-ignore .worktrees 2>/dev/null  # prints path if ignored, empty if not
 ```
 
 **If NOT ignored:**
 
 Fix immediately:
-1. Add appropriate line to .gitignore
+1. Add the exact local-only exclusion to the shared Git `info/exclude` file; never modify tracked `.gitignore`
 2. Proceed with worktree creation
-3. Note the uncommitted .gitignore change in the report
+3. Note the local `info/exclude` change in the report
 
 **Why critical:** Prevents accidentally committing worktree contents to repository.
 
@@ -83,7 +91,9 @@ Fetch and inspect local and remote refs before creating either branch. Reuse an 
 ### 2. Detect Project Name
 
 ```bash
-project=$(basename "$(git rev-parse --show-toplevel)")
+primary_root="$(git worktree list --porcelain | sed -n 's/^worktree //p' | head -1)"
+project=$(basename "$primary_root")
+shared_context="$primary_root/.context"
 ```
 
 ### 3. Create Worktree
@@ -92,7 +102,7 @@ project=$(basename "$(git rev-parse --show-toplevel)")
 # Determine full path
 case $LOCATION in
   .worktrees|worktrees)
-    path="$LOCATION/$BRANCH_NAME"
+    path="$primary_root/$LOCATION/$BRANCH_NAME"
     ;;
   ~/.config/superpowers/worktrees/*)
     path="~/.config/superpowers/worktrees/$project/$BRANCH_NAME"
@@ -107,7 +117,28 @@ cd "$path"
 
 When the branch already exists, attach it without `-b`. Never guess which divergent local or remote branch is canonical.
 
-### 4. Run Project Setup
+### 4. Link Shared Local Context
+
+After creating the worktree, make its `.context` entry point to the primary
+worktree's canonical context:
+
+```bash
+shared_context="$primary_root/.context"
+
+if [ -e .context ] && [ ! -L .context ]; then
+  echo "ERROR: linked worktree has an independent .context directory" >&2
+  exit 1
+fi
+
+ln -sfn "$shared_context" .context
+```
+
+If a real `.context` directory already exists, stop instead of deleting or
+overwriting it. Report the conflict and ask how its content should be preserved
+or merged into the shared context. Verify that `readlink .context` resolves to
+`<primary-worktree>/.context` before continuing.
+
+### 5. Run Project Setup
 
 Auto-detect and run appropriate setup:
 
@@ -126,7 +157,7 @@ if [ -f pyproject.toml ]; then poetry install; fi
 if [ -f go.mod ]; then go mod download; fi
 ```
 
-### 5. Verify Clean Baseline
+### 6. Verify Clean Baseline
 
 Run tests to ensure worktree starts clean:
 
@@ -142,7 +173,7 @@ go test ./...
 
 **If tests pass:** Report ready.
 
-### 6. Report Location
+### 7. Report Location
 
 ```
 Worktree ready at <full-path>
@@ -158,7 +189,8 @@ Ready to implement <feature-name>
 | `worktrees/` exists | Use it (verify ignored) |
 | Both exist | Use `.worktrees/` |
 | Neither exists | Check CLAUDE.md → Ask user |
-| Directory not ignored | Add to .gitignore (don't auto-commit) |
+| Directory not ignored | Add `/.worktrees/` to shared `.git/info/exclude` |
+| Linked worktree created | Symlink `.context` to the primary shared context |
 | Tests fail during baseline | Report failures + ask |
 | No package.json/Cargo.toml | Skip dependency install |
 
@@ -173,6 +205,11 @@ Ready to implement <feature-name>
 
 - **Problem:** Creates inconsistency, violates project conventions
 - **Fix:** Follow priority: existing > CLAUDE.md > ask
+
+### Creating context per branch
+
+- **Problem:** Decisions, plans, and source records diverge between worktrees
+- **Fix:** Keep one `<primary-worktree>/.context/` and symlink every linked worktree to it
 
 ### Proceeding with failing tests
 
@@ -192,6 +229,7 @@ You: I'm using the using-git-worktrees skill to set up an isolated workspace.
 [Check .worktrees/ - exists]
 [Verify ignored - git check-ignore confirms .worktrees/ is ignored]
 [Create worktree: git worktree add .worktrees/auth -b feature/auth]
+[Link .worktrees/auth/.context to the primary shared .context]
 [Run npm install]
 [Run npm test - 47 passing]
 
@@ -207,11 +245,13 @@ Ready to implement auth feature
 - Skip baseline test verification
 - Proceed with failing tests without asking
 - Assume directory location when ambiguous
+- Create or copy an independent `.context/` inside a linked worktree
 - Skip CLAUDE.md check
 
 **Always:**
 - Follow directory priority: existing > CLAUDE.md > ask
 - Verify directory is ignored for project-local
+- Link every worktree to the primary shared `.context/`
 - Auto-detect and run project setup
 - Verify clean test baseline
 

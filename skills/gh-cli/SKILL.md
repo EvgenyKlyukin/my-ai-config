@@ -5,6 +5,17 @@ description: Comprehensive GitHub CLI skill for all gh operations - PR workflows
 
 # GitHub CLI (gh) - Complete Reference
 
+## Mandatory Language Gate for GitHub Writes
+
+Write every user-facing GitHub field in English, including pull-request and
+issue titles, descriptions, comments, reviews, replies, release notes, and
+other authored prose. Immediately before any `gh` or GitHub API write, inspect
+the final outgoing payload for Cyrillic characters. If authored prose contains
+Cyrillic or is not English, stop, translate it to English, and inspect the
+payload again before executing the write. Exact code, identifiers, commands,
+URLs, and required quotations may retain their original form. The conversation
+language never overrides this gate.
+
 ## Overview
 
 The GitHub CLI (`gh`) brings GitHub to your terminal. This skill provides comprehensive command coverage plus powerful Python utilities for complex automation tasks.

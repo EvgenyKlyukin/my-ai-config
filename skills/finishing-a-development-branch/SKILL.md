@@ -5,6 +5,13 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 # Finishing a Development Branch
 
+Any pull-request or merge-request title, description, comment, review, or reply
+created during this workflow must be written in English. Immediately before
+the remote write, inspect every outgoing free-form field for Cyrillic
+characters. Translate authored prose and recheck the final payload; do not
+submit until the language gate passes. Preserve exact code, identifiers,
+commands, URLs, and required quotations.
+
 ## Overview
 
 Guide completion of development work by presenting clear options and handling chosen workflow.

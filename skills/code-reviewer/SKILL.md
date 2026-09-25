@@ -5,6 +5,13 @@ description: Review a diff or pull request against this repo's own standards (ru
 
 # Code Reviewer
 
+When any review finding, summary, inline comment, reply, or approval text will
+be published to GitHub or GitLab, write the outgoing text in English. Before
+submitting it, inspect every free-form field for Cyrillic characters. Translate
+authored prose and recheck the final payload; do not publish until the language
+gate passes. Exact code, identifiers, commands, URLs, and required quotations
+may retain their original form.
+
 The actual standard is `rules/code-style.md` — read it first. This skill is the checklist for applying it, plus general correctness/security checks that apply regardless of language.
 
 ## Workflow

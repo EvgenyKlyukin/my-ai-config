@@ -10,6 +10,9 @@ preserve configuration outside the repository's explicit ownership boundary.
 
 - Write repository documentation, rules, skills, comments, and commit messages
   in English unless a task explicitly requires another language.
+- Write all user-facing text created or edited on GitHub or GitLab in English,
+  including PR/MR titles and descriptions, comments, reviews, replies, issue
+  comments, and release text, regardless of the conversation language.
 - Keep `README.md` focused on users and installation.
 - Keep this file focused on repository-wide AI behavior.
 - `CLAUDE.md` is a compatibility entry point and must continue to direct Claude

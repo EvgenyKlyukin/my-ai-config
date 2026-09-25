@@ -326,7 +326,7 @@ PYEOF
   echo "repaired: ${AGENTS_MD} (installed Wiz access rule)"
 fi
 
-# --- install the shared GitLab merge-request rule for Codex ---
+# --- install the shared GitHub and GitLab writing-language rule for Codex ---
 if [ -f "${GITLAB_WORKFLOW_RULE}" ] && [ -f "${AGENTS_MD}" ]; then
   python3 - "${AGENTS_MD}" "${GITLAB_WORKFLOW_RULE}" <<'PYEOF'
 import re
@@ -351,7 +351,7 @@ else:
     agents += "\n\n" + block
 open(agents_path, "w").write(agents.strip() + "\n")
 PYEOF
-  echo "repaired: ${AGENTS_MD} (installed GitLab merge-request rule)"
+  echo "repaired: ${AGENTS_MD} (installed GitHub and GitLab writing-language rule)"
 fi
 
 # --- repair config.toml: re-add project trust levels, drop invalid model id ---

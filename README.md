@@ -14,8 +14,9 @@ user or corporate configuration.
   lifecycle diagrams with standalone HTML and image/video exports;
 - a Jira worklog workflow that links plans, visible progress, and Jira-key
   branches without performing unreviewed remote writes;
-- a GitLab merge-request rule that keeps comments in open discussion threads
-  in English across `glab`, API, MCP, and browser workflows;
+- a GitHub and GitLab language rule that keeps PR/MR titles, descriptions,
+  comments, reviews, replies, issue comments, and release text in English
+  across CLI, API, MCP, and browser workflows;
 - a Slack work-update skill that drafts or polishes copy-ready progress updates
   without posting them;
 - a preparing-for-demo skill that reconciles the user's verified Jira, GitHub,
@@ -103,7 +104,7 @@ Codex-native settings that the migration tool does not own. In particular, it
 preserves project trust levels, Codex MCP servers, marketplaces, plugins,
 feature flags, shell policy, and the corporate Neuronet instruction block. It
 also copies supporting files referenced by shared skills, installs the shared
-`.context/`, existing-browser, Jira visibility, and GitLab merge-request rules,
+`.context/`, existing-browser, Jira visibility, and GitHub/GitLab language rules,
 and registers Codex Desktop's `computer-use` MCP when available, plus Slack,
 Vimeo, and Wiz MCP access without storing credentials in
 `~/.codex/config.toml`.

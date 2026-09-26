@@ -26,16 +26,6 @@ WIZ_MCP_URL="https://mcp.app.wiz.io"
 SLACK_KEYCHAIN_SERVICE="my-ai-config.slack"
 SLACK_KEYCHAIN_ACCOUNT="SLACK_MCP_XOXP_TOKEN"
 SLACK_MCP_LAUNCHER='token="$(security find-generic-password -s "my-ai-config.slack" -a "SLACK_MCP_XOXP_TOKEN" -w 2>/dev/null)" || { echo "Slack token is missing from macOS Keychain" >&2; exit 1; }; exec env SLACK_MCP_XOXP_TOKEN="$token" SLACK_MCP_ENABLED_TOOLS="channels_list,channels_me,conversations_history,conversations_replies,conversations_search_messages,conversations_unreads,usergroups_list,usergroups_me,users_search" npx -y slack-mcp-server@latest'
-GITLAB_KEYCHAIN_SERVICE="my-ai-config.gitlab"
-GITLAB_KEYCHAIN_ACCOUNT="GITLAB_PERSONAL_ACCESS_TOKEN"
-GITLAB_MCP_LAUNCHER='token="$(security find-generic-password -s "my-ai-config.gitlab" -a "GITLAB_PERSONAL_ACCESS_TOKEN" -w 2>/dev/null)" || { echo "GitLab token is missing from macOS Keychain" >&2; exit 1; }; exec env GITLAB_PERSONAL_ACCESS_TOKEN="$token" GITLAB_API_URL="https://gitlab.loc/api/v4" GITLAB_PERMISSION_MODE="readonly" npx -y @zereight/mcp-gitlab@latest'
-DATADOG_KEYCHAIN_SERVICE="my-ai-config.datadog"
-DATADOG_API_KEY_ACCOUNT="DD_API_KEY"
-DATADOG_APPLICATION_KEY_ACCOUNT="DD_APPLICATION_KEY"
-DATADOG_MCP_LAUNCHER='api_key="$(security find-generic-password -s "my-ai-config.datadog" -a "DD_API_KEY" -w 2>/dev/null)" || { echo "Datadog API key is missing from macOS Keychain" >&2; exit 1; }; application_key="$(security find-generic-password -s "my-ai-config.datadog" -a "DD_APPLICATION_KEY" -w 2>/dev/null)" || { echo "Datadog application key is missing from macOS Keychain" >&2; exit 1; }; exec env DD_API_KEY="$api_key" DD_APPLICATION_KEY="$application_key" npx -y mcp-remote@latest "https://mcp.us5.datadoghq.com/v1/mcp" --header "DD_API_KEY:\${DD_API_KEY}" --header "DD_APPLICATION_KEY:\${DD_APPLICATION_KEY}"'
-SERVICE_DESK_MARKETPLACE_URL="https://gitlab.loc/new-metasites/ai-infra.git"
-SERVICE_DESK_MARKETPLACE="xsolla-ai-infra"
-SERVICE_DESK_PLUGIN="xsolla-service-desk"
 
 # hooks/<script>=<Event> it needs registered under in settings.json. Plain array,
 # not an associative one — the default bash on macOS (3.2) predates declare -A.
@@ -184,33 +174,6 @@ if command -v claude >/dev/null 2>&1; then
   fi
 else
   echo "WARN: claude CLI not found — skipping global Claude MCP installation" >&2
-fi
-
-# --- install the optional internal Xsolla Service Desk plugin for Claude Code ---
-# The plugin supplies its own skill and MCP server. Keep failures non-fatal so
-# this public configuration remains installable without the corporate network
-# or access to the internal GitLab repository. OAuth credentials stay local in
-# macOS Keychain and are never handled by this installer.
-if command -v claude >/dev/null 2>&1; then
-  claude_plugins="$(claude plugin list 2>/dev/null || true)"
-  if printf '%s\n' "${claude_plugins}" | grep -qF "${SERVICE_DESK_PLUGIN}@personal"; then
-    echo "WARN: ${SERVICE_DESK_PLUGIN}@personal is already installed; remove it before installing ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}" >&2
-  elif printf '%s\n' "${claude_plugins}" | grep -qF "${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"; then
-    echo "unchanged: Claude plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"
-  else
-    if ! claude plugin marketplace list 2>/dev/null | grep -qF "${SERVICE_DESK_MARKETPLACE}"; then
-      if ! claude plugin marketplace add "${SERVICE_DESK_MARKETPLACE_URL}"; then
-        echo "WARN: cannot add internal marketplace ${SERVICE_DESK_MARKETPLACE}; continuing without ${SERVICE_DESK_PLUGIN}" >&2
-      fi
-    fi
-    if claude plugin marketplace list 2>/dev/null | grep -qF "${SERVICE_DESK_MARKETPLACE}"; then
-      if claude plugin install "${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}" --scope user --yes; then
-        echo "installed: Claude plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"
-      else
-        echo "WARN: cannot install Claude plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}; continuing" >&2
-      fi
-    fi
-  fi
 fi
 
 # --- register this repo's hook scripts under their required event in settings.json ---

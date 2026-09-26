@@ -21,7 +21,7 @@ k8s-clusters/
 │       ├── service_accounts/   # Service account configs
 │       └── monitoring/         # Monitoring configs
 ├── live/
-│   └── <cluster-name>/         # e.g., gcp-k8s-xsolla-n8n-prod
+│   └── <cluster-name>/         # e.g., gcp-k8s-app-prod
 │       ├── _cluster.yaml       # Cluster-specific vars
 │       └── <namespace>/        # Application namespace
 │           ├── _ns.yaml        # Namespace-specific vars
@@ -33,7 +33,7 @@ k8s-clusters/
 
 ## Cluster Naming Convention
 
-- `gcp-k8s-<project>-<env>` - GKE clusters (e.g., `gcp-k8s-xsolla-n8n-prod`)
+- `gcp-k8s-<project>-<env>` - GKE clusters (e.g., `gcp-k8s-app-prod`)
 - `nl-k8s-<env>` - Netherlands on-prem clusters
 - `us-k8s-<env>` - US on-prem clusters
 
@@ -476,4 +476,4 @@ helm get values <release> -n <namespace>
 
 Images stored in: `us-docker.pkg.dev/<project>/<repo>/<image>`
 
-Example: `us-docker.pkg.dev/xsolla-n8n-prod/n8n-mcp/n8n-mcp:latest`
+Example: `us-docker.pkg.dev/example-prod/n8n-mcp/n8n-mcp:latest`

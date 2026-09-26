@@ -44,8 +44,8 @@ DATADOG_API_KEY_ACCOUNT="DD_API_KEY"
 DATADOG_APPLICATION_KEY_ACCOUNT="DD_APPLICATION_KEY"
 DATADOG_MCP_LAUNCHER='api_key="$(security find-generic-password -s "my-ai-config.datadog" -a "DD_API_KEY" -w 2>/dev/null)" || { echo "Datadog API key is missing from macOS Keychain" >&2; exit 1; }; application_key="$(security find-generic-password -s "my-ai-config.datadog" -a "DD_APPLICATION_KEY" -w 2>/dev/null)" || { echo "Datadog application key is missing from macOS Keychain" >&2; exit 1; }; exec env DD_API_KEY="$api_key" DD_APPLICATION_KEY="$application_key" npx -y mcp-remote@latest "https://mcp.us5.datadoghq.com/v1/mcp" --header "DD_API_KEY:\${DD_API_KEY}" --header "DD_APPLICATION_KEY:\${DD_APPLICATION_KEY}"'
 SERVICE_DESK_MARKETPLACE_URL="https://gitlab.loc/new-metasites/ai-infra.git"
-SERVICE_DESK_MARKETPLACE="xsolla-ai-infra"
-SERVICE_DESK_PLUGIN="xsolla-service-desk"
+SERVICE_DESK_MARKETPLACE="personal"
+SERVICE_DESK_PLUGIN="service-desk"
 
 MIGRATOR="$(find "${CODEX_HOME}/vendor_imports/skills" -maxdepth 6 -name migrate-to-codex.py 2>/dev/null | head -1)"
 if [ -z "${MIGRATOR}" ]; then
@@ -498,30 +498,6 @@ else
   codex mcp remove wiz >/dev/null 2>&1 || true
   codex mcp add wiz --url "${WIZ_MCP_URL}"
   echo "NOTICE: Wiz MCP endpoint changed; run 'codex mcp login wiz' to authorize it" >&2
-fi
-
-# Install the optional internal Service Desk plugin after migration and repair.
-# It owns a separate Jira Service Management MCP server and can coexist with
-# the hosted Atlassian MCP above. Corporate GitLab access is optional: failure
-# must not prevent the rest of the personal configuration from installing.
-codex_plugins="$(codex plugin list 2>/dev/null || true)"
-if printf '%s\n' "${codex_plugins}" | awk -v plugin="${SERVICE_DESK_PLUGIN}@personal" '$1 == plugin && $2 == "installed," { found=1 } END { exit !found }'; then
-  echo "WARN: ${SERVICE_DESK_PLUGIN}@personal is already installed; remove it before installing ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}" >&2
-elif printf '%s\n' "${codex_plugins}" | awk -v plugin="${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}" '$1 == plugin && $2 == "installed," { found=1 } END { exit !found }'; then
-  echo "unchanged: Codex plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"
-else
-  if ! codex plugin marketplace list 2>/dev/null | grep -qF "${SERVICE_DESK_MARKETPLACE}"; then
-    if ! codex plugin marketplace add "${SERVICE_DESK_MARKETPLACE_URL}"; then
-      echo "WARN: cannot add internal marketplace ${SERVICE_DESK_MARKETPLACE}; continuing without ${SERVICE_DESK_PLUGIN}" >&2
-    fi
-  fi
-  if codex plugin marketplace list 2>/dev/null | grep -qF "${SERVICE_DESK_MARKETPLACE}"; then
-    if codex plugin add "${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"; then
-      echo "installed: Codex plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}"
-    else
-      echo "WARN: cannot install Codex plugin ${SERVICE_DESK_PLUGIN}@${SERVICE_DESK_MARKETPLACE}; continuing" >&2
-    fi
-  fi
 fi
 
 echo "Done. Review ${CODEX_HOME}/migrate-to-codex-report.txt for remaining manual-review items."

@@ -22,7 +22,7 @@ user or corporate configuration.
 - a preparing-for-demo skill that reconciles the user's verified Jira, GitHub,
   GitLab, and code-review activity over a rolling 14-day period and publishes a
   private report in the configured personal Confluence folder;
-- the optional internal Xsolla Service Desk plugin for reading and submitting
+- the optional Service Desk plugin for reading and submitting
   Jira Service Management customer requests through Claude Code and Codex;
 - Claude Code commands, agents, and lifecycle hooks;
 - Codex-compatible versions of the shared skills and instructions;
@@ -32,7 +32,7 @@ user or corporate configuration.
   - `computer-use` for Codex Desktop when its local client is available;
   - `slack` for read-only Slack access using a token stored in macOS Keychain;
   - `gitlab` for read-only access to projects visible on internal GitLab;
-  - `datadog` for authenticated access to the Xsolla US5 Datadog MCP, with
+  - `datadog` for authenticated access to the US5 Datadog MCP, with
     credentials loaded from macOS Keychain;
   - `atlassian` for Jira and Confluence through Atlassian Rovo MCP after OAuth;
   - `vimeo` for transcripts, video metadata, and analytics after OAuth login;
@@ -51,8 +51,7 @@ user or corporate configuration.
 - Codex installed for Codex configuration;
 - `jq` for merging Claude hook registrations;
 - the curated `migrate-to-codex` skill available to Codex;
-- access to the internal GitLab repository and the corporate network for the
-  optional Xsolla Service Desk plugin.
+- access to the configured Service Desk plugin repository when needed.
 
 If `migrate-to-codex` is not installed, ask Codex to install the curated skill:
 
@@ -90,7 +89,7 @@ The installer also:
   preserving unrelated settings;
 - installs `playwright`, `chrome-devtools`, `gitlab`, `atlassian`, `vimeo`, and
   `wiz` as user-scoped Claude MCP servers;
-- installs `xsolla-service-desk@xsolla-ai-infra` when its internal GitLab
+- installs the optional Service Desk plugin when its marketplace
   marketplace is reachable.
 
 Then install the Codex configuration:
@@ -109,13 +108,13 @@ and registers Codex Desktop's `computer-use` MCP when available, plus Slack,
 Vimeo, and Wiz MCP access without storing credentials in
 `~/.codex/config.toml`.
 
-Both installers add the internal `xsolla-ai-infra` marketplace and install
-`xsolla-service-desk@xsolla-ai-infra` when `gitlab.loc` is reachable. Failure to
+Both installers add the configured Service Desk marketplace and install
+the optional Service Desk plugin when its repository is reachable. Failure to
 reach the internal repository is non-fatal, so the rest of the configuration
 still installs. The plugin handles Jira Service Management customer portals;
 it does not replace the hosted Atlassian MCP used for ordinary Jira issues and
 Confluence. See the
-[Xsolla Service Desk setup guide](docs/xsolla-service-desk.md).
+[Service Desk setup guide](docs/service-desk.md).
 
 Slack needs a separately created user token before it can be used. Follow the
 [Slack MCP setup guide](docs/slack-mcp.md) to create a least-privilege
@@ -151,8 +150,7 @@ its Keychain token is configured as described in the
 [Slack MCP setup guide](docs/slack-mcp.md).
 Datadog becomes operational after its two service-account keys are stored as
 described in the [Datadog MCP setup guide](docs/datadog-mcp.md).
-The plugin lists should also contain
-`xsolla-service-desk@xsolla-ai-infra` when internal GitLab access is available.
+The plugin list may contain the optional Service Desk plugin when configured.
 
 ## Repository structure
 

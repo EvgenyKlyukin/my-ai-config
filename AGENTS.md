@@ -67,10 +67,9 @@ This repository may create, replace, or remove only:
 - a converted Codex skill at `~/.agents/skills/<name>` only when the matching
   `~/.claude/skills/<name>` symlink is recorded in
   `~/.claude/.my-ai-config-manifest` and resolves inside this repository.
-- the `xsolla-ai-infra` plugin marketplace and
-  `xsolla-service-desk@xsolla-ai-infra` user installation in Claude Code and
-  Codex; OAuth client credentials and tokens remain outside repository
-  ownership in macOS Keychain.
+- the optional Service Desk plugin installation in Claude Code and Codex;
+  OAuth client credentials and tokens remain outside repository ownership in
+  macOS Keychain.
 
 The Codex installer may temporarily regenerate shared files only when it first
 snapshots and then restores unrelated Codex-native sections. Corporate

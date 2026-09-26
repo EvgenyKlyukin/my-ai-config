@@ -10,7 +10,7 @@ Real-world patterns for testing with Claude-in-Chrome and Playwright MCP tools.
 
 # Step 2: Navigate to deployed app
 → mcp__claude-in-chrome__navigate
-  url: "https://prototype.xsolla.dev/mini-app-bundles/myapp/index.html"
+  url: "https://prototype.example.dev/mini-app-bundles/myapp/index.html"
 
 # Step 3: Check for errors
 → mcp__claude-in-chrome__read_console_messages
@@ -93,17 +93,17 @@ Real-world patterns for testing with Claude-in-Chrome and Playwright MCP tools.
 ### DON'T: Navigate without /index.html on GCS
 ```
 # BAD — returns 404
-→ navigate url: "https://prototype.xsolla.dev/mini-app-bundles/voice/"
+→ navigate url: "https://prototype.example.dev/mini-app-bundles/voice/"
 
 # GOOD
-→ navigate url: "https://prototype.xsolla.dev/mini-app-bundles/voice/index.html"
+→ navigate url: "https://prototype.example.dev/mini-app-bundles/voice/index.html"
 ```
 
 ### DON'T: Use Playwright MCP for auth-protected pages
 ```
 # BAD — redirects to Okta login
-→ browser_navigate url: "https://internal.xsolla.com/dashboard"
+→ browser_navigate url: "https://internal.example.com/dashboard"
 
 # GOOD — use Claude-in-Chrome (has user's session)
-→ mcp__claude-in-chrome__navigate url: "https://internal.xsolla.com/dashboard"
+→ mcp__claude-in-chrome__navigate url: "https://internal.example.com/dashboard"
 ```

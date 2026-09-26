@@ -1,13 +1,45 @@
 # Local Repository Context
 
-When entering a Git repository, check for `.context/AGENTS.md`. If it exists, read it as supplementary local context after reading repository-tracked instructions. Treat remote/tracked instructions as authoritative in conflicts and report the conflict.
+When entering a Git repository, check for `.context/AGENTS.md`. If it exists,
+read it as supplementary local context after reading the tracked repository
+instructions. Treat tracked instructions as authoritative in conflicts and
+report the conflict.
 
-Read `.context/AGENTS.md` as a map. Load only the linked `.context/contexts/`, plans, infrastructure, docs, scripts, or source files needed for the current task; never load the entire `.context/` tree by default.
+Use `.context/AGENTS.md` as the local context map. Load only files relevant to
+the current task; do not read the entire `.context/` tree by default.
 
-Create `.context/contexts/`, `.context/docs/`, `.context/plans/`, `.context/scripts/`, and `.context/sources/{jira,slack,vimeo,meet,figma}/` as part of the default scaffold. Store repository-specific local automation in `.context/scripts/`; keep it under the ignored `.context/` boundary and never add it to remote Git history. Store script environment values in adjacent `.env` files inside `.context/scripts/`, using `.env.<script-name>` when separate environments are needed. Secret-bearing `.env` files must have user-only permissions, must never be printed or copied into agent context, and must be populated through secure secret handoff rather than chat. Do not embed credentials or tokens directly in script source. Whenever the user asks you to inspect or mutate an external source, save the useful retrieved or resulting information under `.context/sources/<provider>/` during the same task; do not merely offer to save it. Every successfully created, read, or updated Jira issue, including an Epic, must create or refresh `.context/sources/jira/<ISSUE-KEY>.md`, even when accessed directly through Atlassian MCP without explicitly invoking `jira-worklog`. Write a source record in English or in the source's original language; do not translate retrieved content solely to enforce the general English convention. Check the saved record before querying the source again, but refresh it when missing, stale, incomplete, or when current data is requested. Maintain exactly one `.context/sources/slack/<channel-slug>.md` document per Slack channel and one `.context/sources/figma/<file-key-or-stable-slug>.md` document per Figma file; update them instead of creating per-request files. Include the stable source ID, URL when available, retrieval timestamp with timezone, useful facts, and provenance. Never store credentials or tokens outside the protected local `.env` convention.
+Common local files and directories include:
 
-Create the sibling `.worktrees/` directory under the primary worktree as part of the default scaffold for Codex project-local Git worktrees. Keep exactly one shared local context at `<primary-worktree>/.context/` for the entire repository. In every linked worktree, `.context` must be a symlink to that shared directory; never create or copy branch-specific context. Resolve the primary worktree from the first `worktree` entry in `git worktree list --porcelain`. If a linked worktree already contains a real `.context/` directory, do not overwrite it; report the conflict and ask how to preserve or merge it. Ensure both `/.context` and `/.worktrees/` are present in the repository's shared `.git/info/exclude`; the no-trailing-slash `.context` pattern must cover both the primary directory and linked-worktree symlinks. Never modify tracked `.gitignore`, `CLAUDE.md`, `AGENTS.md`, `docs/`, or `plans/` for local context. Use `.context/AGENTS.md` as the canonical file and `.context/CLAUDE.md` as a symlink to `AGENTS.md`.
+- `.context/AGENTS.md` — map of the repository's local context;
+- `.context/infrastructure.md` — local server metadata, SSH aliases, credential
+  references, and operational procedures;
+- `.context/contexts/` — scoped project context;
+- `.context/docs/` — local-only supporting documentation;
+- `.context/plans/` — implementation plans;
+- `.context/scripts/` — repository-specific local automation;
+- `.context/sources/` — useful records retrieved from external sources;
+- `.context/CHANGELOG.md` — local remote-aware changelog when maintained.
 
-Write every file under `.context/` in English, including maps, plans, scoped context, infrastructure notes, personal docs, and changelog entries. This requirement applies even when the user or task uses another language; preserve exact identifiers and required quotations.
+Keep `.context/` local-only. Add `/.context/` and `/.worktrees/` to the
+repository's shared `.git/info/exclude`; do not modify the tracked `.gitignore`.
+Never commit `.context/` unless the user explicitly asks for a specific file.
 
-When `.context/CHANGELOG.md` exists, start a non-blocking background agent at session start, if delegation is available, to run `git fetch --prune`, summarize new remote commits since its recorded `remote-head`, and update the local changelog in English. The agent must not checkout, merge, rebase, reset, pull, modify tracked files, or expose secrets.
+Store repository-specific automation in `.context/scripts/`. Store environment
+values in adjacent `.env` files and keep secret-bearing files user-only. Never
+store passwords, private keys, access tokens, cookies, or `.env` contents in
+tracked files or in the context map. Use the operating system's credential
+store or SSH agent and record only variable names, secret references, and key
+paths.
+
+When inspecting or mutating an external source, save useful resulting
+information under `.context/sources/` during the same task when the source
+record will help future work. Include provenance, a retrieval timestamp, and
+stable identifiers without storing credentials or unnecessary sensitive data.
+
+Keep one shared `.context/` directory for the primary worktree and link
+additional worktrees to it. Do not overwrite a real `.context/` directory in a
+linked worktree; report the conflict first. Write context files in English,
+preserving exact identifiers and required quotations.
+
+Never modify tracked `AGENTS.md`, `CLAUDE.md`, `docs/`, or plans merely to store
+personal notes.

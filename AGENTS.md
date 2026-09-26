@@ -42,13 +42,10 @@ preserve configuration outside the repository's explicit ownership boundary.
    `description`, concise activation guidance, and any required license.
 6. When changing shared skills or rules, account for both Claude and Codex
    syntax and migration behavior.
-7. Keep global MCP defaults repository-managed and available from every project.
-   The expected browser set is `playwright` and `chrome-devtools` for both
-   clients; both clients also receive read-only GitLab, authenticated Datadog,
-   plus the hosted Atlassian Rovo, Vimeo, and Wiz MCP endpoints. Codex
-   additionally receives `computer-use` when available. Both clients load
-   Slack, GitLab, and Datadog credentials from macOS Keychain without embedding
-   them in client configuration.
+7. Keep only the repository's personal defaults managed and available from
+   every project. The expected browser set is `playwright` and
+   `chrome-devtools`; Codex additionally receives `computer-use` when
+   available. Never embed credentials in client configuration.
 
 ## Ownership boundary
 
@@ -57,19 +54,13 @@ This repository may create, replace, or remove only:
 - Claude symlinks recorded in `~/.claude/.my-ai-config-manifest` and pointing
   into this repository;
 - Claude hook command registrations explicitly listed in `HOOK_EVENTS`;
-- user-scoped Claude MCP entries named `playwright`, `chrome-devtools`, `slack`,
-  `gitlab`, `datadog`, `atlassian`, `vimeo`, and `wiz`;
-- the marked `my-ai-config-local-context`, `my-ai-config-browser`,
-  `my-ai-config-jira-workflow`, `my-ai-config-gitlab-workflow`, and
-  `my-ai-config-wiz` blocks in `~/AGENTS.md`;
-- the Codex MCP entries named `computer-use`, `slack`, `gitlab`, `datadog`,
-  `atlassian`, `vimeo`, and `wiz` installed by `install-codex.sh`;
+- user-scoped Claude MCP entries named `playwright` and `chrome-devtools`;
+- the marked `my-ai-config-local-context` and `my-ai-config-browser` blocks in
+  `~/AGENTS.md`;
+- the Codex `computer-use` MCP entry installed by `install-codex.sh`;
 - a converted Codex skill at `~/.agents/skills/<name>` only when the matching
   `~/.claude/skills/<name>` symlink is recorded in
   `~/.claude/.my-ai-config-manifest` and resolves inside this repository.
-- the optional Service Desk plugin installation in Claude Code and Codex;
-  OAuth client credentials and tokens remain outside repository ownership in
-  macOS Keychain.
 
 The Codex installer may temporarily regenerate shared files only when it first
 snapshots and then restores unrelated Codex-native sections. Corporate
@@ -86,9 +77,8 @@ Personal context for another repository belongs under that repository's ignored
 - `.context/CLAUDE.md` is a symlink to `AGENTS.md`.
 - Load only task-relevant files linked from `.context/AGENTS.md`.
 - Store implementation plans in `.context/plans/`.
-- Store non-secret Jira defaults in `.context/contexts/jira.md` when needed.
-- Link non-trivial implementation plans to Jira through the `jira-worklog`
-  workflow; all Jira writes require a preview and explicit confirmation.
+- Store non-secret project defaults in `.context/contexts/` when needed.
+- External writes require a preview and explicit confirmation.
 - Store the remote-aware local changelog in `.context/CHANGELOG.md`.
 - Create `.context/contexts/`, `.context/docs/`, `.context/plans/`,
   `.context/scripts/`, and `.context/sources/{jira,slack,vimeo,meet,figma}/` as

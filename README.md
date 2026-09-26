@@ -1,301 +1,85 @@
 # my-ai-config
 
-`my-ai-config` is a personal, repository-managed configuration for Claude Code
-and Codex. It keeps reusable rules, skills, commands, hooks, and global MCP
-defaults in one place and installs them without taking ownership of unrelated
-user or corporate configuration.
+Personal configuration for Claude Code and Codex. The repository contains
+shared rules, reusable skills, commands, hooks, and installer scripts.
 
-## What is included
+## Included
 
-- shared coding and commit rules;
-- reusable engineering, review, planning, frontend, infrastructure, and Neo4j
-  skills;
-- Archify for validated architecture, workflow, sequence, data-flow, and
-  lifecycle diagrams with standalone HTML and image/video exports;
-- a Jira worklog workflow that links plans, visible progress, and Jira-key
-  branches without performing unreviewed remote writes;
-- a GitHub and GitLab language rule that keeps PR/MR titles, descriptions,
-  comments, reviews, replies, issue comments, and release text in English
-  across CLI, API, MCP, and browser workflows;
-- a Slack work-update skill that drafts or polishes copy-ready progress updates
-  without posting them;
-- a preparing-for-demo skill that reconciles the user's verified Jira, GitHub,
-  GitLab, and code-review activity over a rolling 14-day period and publishes a
-  private report in the configured personal Confluence folder;
-- the optional Service Desk plugin for reading and submitting
-  Jira Service Management customer requests through Claude Code and Codex;
+- 33 reusable skills covering software engineering, architecture, DevOps,
+  security, data, frontend, testing, GitHub CLI, and diagrams;
+- shared coding, commit, browser, GitLab-language, and local-context rules;
 - Claude Code commands, agents, and lifecycle hooks;
-- Codex-compatible versions of the shared skills and instructions;
-- global browser MCP defaults:
-  - `playwright` for repeatable browser automation and UI tests;
-  - `chrome-devtools` for inspecting an existing Chrome session;
-  - `computer-use` for Codex Desktop when its local client is available;
-  - `slack` for read-only Slack access using a token stored in macOS Keychain;
-  - `gitlab` for read-only access to projects visible on internal GitLab;
-  - `datadog` for authenticated access to the US5 Datadog MCP, with
-    credentials loaded from macOS Keychain;
-  - `atlassian` for Jira and Confluence through Atlassian Rovo MCP after OAuth;
-  - `vimeo` for transcripts, video metadata, and analytics after OAuth login;
-  - `wiz` for security findings, affected resources, evidence, attack paths,
-    and remediation guidance after OAuth login;
-- the `.context/` convention for conflict-free, repository-local personal
-  context and implementation plans.
+- Archify for architecture and workflow diagrams;
+- browser automation defaults for Playwright and Chrome DevTools;
+- the repository-local `.context/` convention for plans and source records.
+
+Work-specific Jira, Neo4j, SQLMesh, Slack-update, demo-reporting, Service Desk,
+Datadog, and Wiz configuration has been removed from this personal fork.
 
 ## Requirements
 
-- macOS or another Unix-like environment with Bash;
 - Git;
-- Node.js 20 or newer for Archify, the optional Service Desk plugin, and
-  Node-based MCP servers;
-- Claude Code installed for Claude configuration;
-- Codex installed for Codex configuration;
-- `jq` for merging Claude hook registrations;
-- the curated `migrate-to-codex` skill available to Codex;
-- access to the configured Service Desk plugin repository when needed.
-
-If `migrate-to-codex` is not installed, ask Codex to install the curated skill:
-
-```text
-$skill-installer migrate-to-codex
-```
-
-Restart Codex after installation. The installer locates the bundled migration
-script under `~/.codex/vendor_imports/skills/`.
+- Bash on macOS, Linux, or WSL for the shell installers;
+- Claude Code and/or Codex;
+- Node.js 20+ for Archify and Node-based tools;
+- `jq` for Claude hook registration.
 
 ## Installation
 
-Clone the repository and enter it:
-
 ```bash
-git clone https://github.com/eklyukin/my-ai-config.git
+git clone https://github.com/EvgenyKlyukin/my-ai-config.git
 cd my-ai-config
 ```
 
-Install the Claude Code configuration first:
+For Claude Code:
 
 ```bash
 bash install.sh
 ```
 
-This creates managed symlinks under `~/.claude/` for repository content in
-`rules/`, `skills/`, `agents/`, `commands/`, and `hooks/`. Re-running the
-installer is safe and converges the managed symlinks to the current repository
-state. Existing real files and symlinks not owned by this repository are not
-overwritten.
-
-The installer also:
-
-- registers this repository's Claude hooks in `~/.claude/settings.json` while
-  preserving unrelated settings;
-- installs `playwright`, `chrome-devtools`, `gitlab`, `atlassian`, `vimeo`, and
-  `wiz` as user-scoped Claude MCP servers;
-- installs the optional Service Desk plugin when its marketplace
-  marketplace is reachable.
-
-Then install the Codex configuration:
+For Codex on Unix-like systems:
 
 ```bash
 bash install-codex.sh
 ```
 
-The Codex installer migrates the Claude configuration into Codex, then restores
-Codex-native settings that the migration tool does not own. In particular, it
-preserves project trust levels, Codex MCP servers, marketplaces, plugins,
-feature flags, shell policy, and the corporate Neuronet instruction block. It
-also copies supporting files referenced by shared skills, installs the shared
-`.context/`, existing-browser, Jira visibility, and GitHub/GitLab language rules,
-and registers Codex Desktop's `computer-use` MCP when available, plus Slack,
-Vimeo, and Wiz MCP access without storing credentials in
-`~/.codex/config.toml`.
+On Windows, copy the directories under `skills/` to
+`%USERPROFILE%\\.codex\\skills` and copy `AGENTS.md` to
+`%USERPROFILE%\\.codex\\AGENTS.md`, preserving a backup of any existing
+`AGENTS.md` first.
 
-Both installers add the configured Service Desk marketplace and install
-the optional Service Desk plugin when its repository is reachable. Failure to
-reach the internal repository is non-fatal, so the rest of the configuration
-still installs. The plugin handles Jira Service Management customer portals;
-it does not replace the hosted Atlassian MCP used for ordinary Jira issues and
-Confluence. See the
-[Service Desk setup guide](docs/service-desk.md).
-
-Slack needs a separately created user token before it can be used. Follow the
-[Slack MCP setup guide](docs/slack-mcp.md) to create a least-privilege
-read-only token and store it in macOS Keychain for both clients.
-
-Internal GitLab access uses a dedicated `read_api` personal access token stored
-in macOS Keychain. The installers expose GitLab's read-only MCP toolset to both
-clients without copying the token into their configuration files. Follow the
-[GitLab MCP setup guide](docs/gitlab-mcp.md).
-
-Both installers are designed to be re-run after pulling repository updates.
+Both installers are intended to be safe to re-run and preserve unrelated client
+configuration. Review the scripts before running them on a new machine.
 
 ## Verification
-
-Check that the expected skills and MCP servers are visible:
 
 ```bash
 test -f ~/.claude/skills/grill-me/SKILL.md
 test -f ~/.agents/skills/grill-me/SKILL.md
-test -f ~/.claude/skills/jira-worklog/SKILL.md
-test -f ~/.agents/skills/jira-worklog/SKILL.md
 claude mcp list
 codex mcp list
-claude plugin list
-codex plugin list
+git diff --check
 ```
-
-The defaults should include `playwright`, `chrome-devtools`, `gitlab`,
-`datadog`, `atlassian`, `vimeo`, and `wiz` in both clients, plus `computer-use`
-in Codex when Codex Desktop provides the local client. Atlassian, Vimeo, and
-Wiz require a one-time OAuth login in each client. Slack becomes operational after
-its Keychain token is configured as described in the
-[Slack MCP setup guide](docs/slack-mcp.md).
-Datadog becomes operational after its two service-account keys are stored as
-described in the [Datadog MCP setup guide](docs/datadog-mcp.md).
-The plugin list may contain the optional Service Desk plugin when configured.
 
 ## Repository structure
 
 ```text
 .
-├── AGENTS.md          # canonical repository instructions for AI agents
-├── CLAUDE.md          # Claude entry point; delegates to AGENTS.md
-├── README.md          # user documentation
-├── rules/             # shared behavioral and workflow rules
-├── skills/            # reusable skills, one directory per skill
-├── agents/            # Claude-specific subagent definitions
-├── commands/          # Claude-specific commands
-├── docs/              # setup guides for optional integrations
+├── AGENTS.md          # repository-wide AI instructions
+├── CLAUDE.md          # Claude compatibility entry point
+├── rules/             # shared behavioral rules
+├── skills/            # reusable skills
+├── agents/            # Claude subagent definitions
+├── commands/          # Claude commands
+├── docs/              # remaining general documentation
 ├── hooks/             # lifecycle hooks
 ├── install.sh         # Claude installer
-├── install-codex.sh   # Codex migration and repair installer
-└── uninstall.sh       # removes Claude symlinks managed by this repository
+├── install-codex.sh   # Codex installer for Unix-like systems
+└── uninstall.sh       # removes managed Claude symlinks
 ```
 
-## Local repository context
+## Git policy
 
-The `repository-context` skill stores personal repository context under an
-ignored `.context/` directory:
-
-```text
-<repo>/
-├── .worktrees/       # ignored project-local Codex worktrees
-│   └── <branch>/
-│       └── .context -> <repo>/.context
-└── .context/
-    ├── AGENTS.md
-    ├── CLAUDE.md -> AGENTS.md
-    ├── CHANGELOG.md
-    ├── INFRASTRUCTURE.md
-    ├── contexts/
-    ├── docs/
-    ├── scripts/      # repository-specific local automation, never pushed
-    ├── sources/
-    │   ├── jira/
-    │   ├── slack/    # one document per channel
-    │   ├── vimeo/
-    │   ├── meet/
-    │   └── figma/    # one document per Figma file
-    └── plans/
-```
-
-`.context/AGENTS.md` is the canonical map. Agents read only the linked files
-needed for the current task, while tracked repository instructions always have
-priority. The local entries are excluded through `/.context` and
-`/.worktrees/` in `.git/info/exclude`; tracked `.gitignore`, `AGENTS.md`,
-`CLAUDE.md`, `docs/`, and `plans/` are not modified to store personal context.
-`.worktrees/` is created by default for isolated Codex Git worktrees. Context documents are
-written in English regardless of the conversation language; source records may
-instead retain the source's original language.
-The primary worktree owns the repository's only real `.context/` directory.
-Each linked worktree uses a `.context` symlink to that shared directory, so
-plans, source records, scripts, and the changelog remain consistent across
-branches.
-Repository-specific personal automation belongs in `.context/scripts/`; it
-remains covered by the local `/.context` exclusion. Its environment values
-belong in adjacent `.env` files in that directory. Secret-bearing environment
-files use user-only permissions and are never committed, printed, or populated
-through an AI chat; credentials must not be embedded directly in script source.
-When an agent retrieves or changes Jira, Slack, Vimeo, Meet, or Figma
-information, it saves the useful result under `.context/sources/` during the
-same task. Every Jira issue or Epic that is created, read, or updated creates
-or refreshes `.context/sources/jira/<ISSUE-KEY>.md`, including when Atlassian
-MCP is used directly without naming `jira-worklog`. Source
-records may use English or the source's original language and include their
-stable identifier, URL when available, and retrieval timestamp. Slack uses
-exactly one incrementally updated document per channel; Figma uses one per
-Figma file.
-
-The `grill-me` workflow interviews the user before implementation, records the
-confirmed agreement in `.context/plans/YYYY-MM-DD-<slug>.md`, and waits for a
-separate instruction before changing product code.
-
-The `jira-worklog` skill can link that plan to an existing Jira issue or create
-a new issue after showing a preview and receiving confirmation. It can prepare
-progress and completion updates from verified Git, test, and PR evidence. Jira
-summaries, descriptions, acceptance criteria, comments, and transition notes
-are always written in English. Jira
-work is created in the home `IEO` project by default and only after a complete
-preview receives fresh, explicit approval. Issue and epic branches use the
-exact Jira key (`IEO-121` and `IEO-100`): an
-issue branch targets its epic branch in the same repository, and the epic
-branch targets the repository's normal default branch. Store only non-secret
-Jira defaults in `.context/contexts/jira.md`; retrieved issue records belong in
-`.context/sources/jira/`.
-
-## Adding or updating configuration
-
-Add content to the matching repository directory:
-
-- `rules/<name>.md` for shared rules;
-- `skills/<name>/SKILL.md` for a skill;
-- `agents/<name>.md` for a Claude subagent;
-- `commands/<name>.md` for a Claude command;
-- `hooks/<name>.sh` for a lifecycle hook.
-
-When a hook needs automatic registration, add its event mapping to
-`HOOK_EVENTS` in `install.sh`. After any change, run both installers and verify
-the installed paths.
-
-## Configuration ownership
-
-The installers intentionally preserve configuration they do not own. Notable
-examples include:
-
-- unrelated keys in `~/.claude/settings.json`;
-- the corporate-managed `neo4j-graph-first` rule;
-- unrelated Claude skills and MCP servers;
-- Codex project trust levels, native MCP servers, plugins, marketplaces,
-  features, and shell policy.
-
-Review `~/.codex/migrate-to-codex-report.txt` after migration for fields that
-require manual compatibility review.
-
-The first interactive installation asks for the Jira display name returned by
-Jira's `/myself` endpoint. It stores that machine-local value in
-`~/.config/my-ai-config/jira-display-name`; the value is never committed to
-this repository. Re-running the installer keeps the configured value. For a
-non-interactive installation, set `MY_AI_CONFIG_JIRA_DISPLAY_NAME` explicitly.
-If no identity is configured, agents must refuse every Jira write until the
-installer is rerun with a value.
-
-The repository owns only the Claude symlinks recorded in
-`~/.claude/.my-ai-config-manifest`, its hook command registrations listed in
-`HOOK_EVENTS`, the user-scoped Claude MCP entries named `playwright`,
-`chrome-devtools`, `atlassian`, `vimeo`, and `wiz`, the marked
-`my-ai-config-local-context`, `my-ai-config-browser`,
-`my-ai-config-jira-workflow`, and `my-ai-config-wiz` blocks in `~/AGENTS.md`,
-the Codex MCP entries named `computer-use`, `slack`, `atlassian`, `vimeo`, and
-`wiz`, and a converted
-Codex skill at `~/.agents/skills/<name>` only when the corresponding
-`~/.claude/skills/<name>` symlink is recorded in the manifest and resolves
-inside this repository. All other configuration must be preserved or restored
-during installation.
-
-## Uninstalling Claude symlinks
-
-```bash
-bash uninstall.sh
-```
-
-The uninstall script removes only Claude symlinks recorded as managed by this
-repository. Codex migration output is not removed automatically because it is
-merged with native Codex configuration.
+Use title-only commits in the form `<type>[optional scope]: description`.
+Never commit credentials, tokens, cookies, private keys, or machine-local
+context.
